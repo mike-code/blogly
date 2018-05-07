@@ -12,5 +12,10 @@
 */
 
 Route::get('/', function () {
+
+    $user = new \App\Models\BlogEntry;
+    $user->name = 'John';
+    $user->save();
+
     return view('welcome');
 });

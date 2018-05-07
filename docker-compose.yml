@@ -15,11 +15,10 @@ services:
     image: devilbox/php-fpm:7.2-prod
     volumes:
       - ./src:/var/www/html
-    entrypoint: '/bin/sh -c "cd /var/www/html && php artisan migrate && php artisan view:clear && php artisan cache:clear && /docker-entrypoint.sh"'
+    entrypoint: '/bin/sh -c "cd /var/www/html && php artisan migrate && php artisan view:clear && php artisan cache:clear && composer dump-autoload && /docker-entrypoint.sh"'
     links:
       - mysql
       - mongodb
-      # - redis
 
   mongodb:
     image: mongo
@@ -38,19 +37,15 @@ services:
     image: mysql
     volumes:
       - ./dbinit:/docker-entrypoint-initdb.d
-      # - ./mysql:/var/lib/mysql
+      - ./mysql:/var/lib/mysql
     ports:
       - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: "lite"
 
-  # composer:
-  #   image: library/composer
-  #   command: install
-  #   volumes:
-  #     - ./src:/app
-
-  # redis:
-  #   image: redis
-  #   ports:
-  #     - 6379:6379
+  composer:
+    image: composer
+    command: install
+    volumes:
+      - ./src:/app
+    command: ["composer", "update", "--ignore-platform-reqs"]
