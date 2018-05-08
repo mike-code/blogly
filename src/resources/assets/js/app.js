@@ -7,7 +7,14 @@
 
 require('./bootstrap');
 
-window.Vue = require('vue');
+import Vue from 'vue';
+import AtComponents from 'at-ui';
+import VueRouter from 'vue-router';
+import wysiwyg from "vue-wysiwyg";
+
+Vue.use(VueRouter);
+Vue.use(AtComponents);
+Vue.use(wysiwyg, {});
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -15,7 +22,10 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
+Vue.component('blog-entries', require('./components/BlogEntries.vue'));
+Vue.component('blog-header', require('./components/BlogHeader.vue'));
+Vue.component('at-modal-extended', require('./components/AtExtensions/AtModalExtended.vue'));
+Vue.component('at-timeline-item-extended', require('./components/AtExtensions/AtTimelineItemExtended.vue'));
 
 const app = new Vue({
     el: '#app'

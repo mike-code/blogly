@@ -1,21 +1,21 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+Route::group(['prefix' => 'api', 'as' => 'blog.entry.'], function()
+{
+    Route::get('/entry', 'BlogController@get')->name('get');
 
-Route::get('/', function () {
+    Route::group(['middleware' => ['auth']], function()
+    {
+        Route::get('/delete/{id}', 'BlogController@delete')->name('delete');
+        Route::post('/add', 'BlogController@add')->name('add');
+    });
 
-    $user = new \App\Models\BlogEntry;
-    $user->name = 'John';
-    $user->save();
-
-    return view('welcome');
 });
+
+Route::get('/', function ()
+{
+    return view('blog.entries');
+})->name('home');
+
+Route::post('/login', 'Auth\LoginController@login')->name('login');
+Route::get('/logout', 'Auth\LoginController@logout')->name('logout');

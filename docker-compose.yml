@@ -15,7 +15,7 @@ services:
     image: devilbox/php-fpm:7.2-prod
     volumes:
       - ./src:/var/www/html
-    entrypoint: '/bin/sh -c "cd /var/www/html && php artisan migrate && php artisan view:clear && php artisan cache:clear && composer dump-autoload && /docker-entrypoint.sh"'
+    entrypoint: '/bin/sh -c "cd /var/www/html && php artisan migrate && php artisan view:clear && php artisan cache:clear && /docker-entrypoint.sh"'
     links:
       - mysql
       - mongodb
