@@ -7,8 +7,8 @@
                         <h6>{{ item.created_at }} by {{ item.author_name }}</h6>
                         <at-card style="width: 100%" :body-style="{ padding: 0 }">
                             <div slot="extra">
-                                <a>Edit</a>
-                                <a class='blog-delete' @click="deleteBlogEntry(item)">Delete</a>
+                                <a v-if="isLoggedIn" @click="editBlogEntry(item)">Edit</a>
+                                <a v-if="isLoggedIn" class='blog-delete' @click="deleteBlogEntry(item)">Delete</a>
                             </div>
                             <div style="padding: 0.8rem;">
                                 <h5>{{ item.title }}</h5>
@@ -36,11 +36,12 @@
 
     export default
     {
-        props: ['route_get_entries', 'route_delete_entry'],
+        props: ['route_get_entries', 'route_delete_entry', 'is_loggedin'],
 
         data()
         {
             return {
+                isLoggedIn: this.is_loggedin,
                 items: [],
                 page: 1,
                 all_entries_fetched: false,
@@ -58,8 +59,21 @@
             });
         },
 
+        watch:
+        {
+            is_loggedin(v)
+            {
+                this.isLoggedIn = v;
+            }
+        },
+
         methods:
         {
+            editBlogEntry(entry)
+            {
+                this.$Message.info('Not supported, yet ☹');
+            },
+
             deleteBlogEntry(entry)
             {
                 this.$Modal.confirm({
@@ -114,7 +128,7 @@
                     setTimeout(() =>
                     {
                         this.fetchBlogEntries($state);
-                    }, 1000);
+                    }, 500);
                 }
             },
         },

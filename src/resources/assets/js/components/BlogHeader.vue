@@ -5,16 +5,11 @@
                 <a :href="route_home"></a>
             </div>
             <div class='nav-right'>
-                <at-button v-if="user_loggedin" type="success" hollow @click="blogEntryModal=true">Add new entry</at-button>
-                <at-button v-if="user_loggedin" type="error" hollow @click="handleLogout">Logout</at-button>
-                <at-button v-else type="info" hollow @click="loginModal=true">Login</at-button>
+                <at-button v-if="isLoggedIn" type="success" hollow @click="blogEntryModal=true">Add new entry</at-button>
+                <at-button v-if="isLoggedIn" type="error" hollow @click="handleLogout">Logout</at-button>
+                <at-button v-else type="info" hollow @click="openLoginModal()">Login</at-button>
             </div>
         </header>
-
-        <at-modal-extended v-model="loginModal" title="Please sign in" @on-confirm="handleLogin" ref="login_box" @on-show="handleLoginboxShow">
-            <at-input v-model="login.name" placeholder='username' @keyup.enter.native="loginKeypress()" ref='login_input_name'></at-input>
-            <at-input v-model="login.password" type='password' placeholder='password' @keyup.enter.native="loginKeypress()"></at-input>
-        </at-modal-extended>
 
         <at-modal-extended v-model="blogEntryModal" title="Add new post" width="800" :mask-closable="false" ref="add_blog_post_box" @on-confirm="handleAddBlogEntry">
             <at-input v-model="blog_entry.title" :max="255" placeholder='Title'></at-input>
@@ -30,13 +25,13 @@
 
     export default
     {
-        props: ['route_home', 'route_login', 'route_logout', 'route_add_blog_entry', 'user_loggedin', 'blog_entries'],
+        props: ['route_home', 'route_logout', 'is_loggedin', 'login_modal', 'route_add_blog_entry', 'blog_entries'],
 
         data()
         {
             return {
-                loginModal: null,
                 blogEntryModal: null,
+                isLoggedIn: this.is_loggedin,
                 login:
                 {
                     name: null,
@@ -51,6 +46,14 @@
             };
         },
 
+        watch:
+        {
+            is_loggedin(v)
+            {
+                this.isLoggedIn = v;
+            }
+        },
+
         created()
         {
             this.$Loading.config({width: 3});
@@ -58,14 +61,26 @@
 
         methods:
         {
-            loginKeypress()
+            openLoginModal()
             {
-                this.$refs.login_box.handleAction('confirm');
+                this.$emit('update:login_modal', true);
             },
 
-            handleLoginboxShow(el)
+            handleLogout()
             {
-                this.$nextTick(() => this.$refs.login_input_name.$el.querySelector('input').focus());
+                this.$Loading.start();
+
+                axios.get(this.route_logout)
+                .then((token) =>
+                {
+                    this.$Message.success('You have been logged out');
+                    axios.defaults.headers.common['X-CSRF-TOKEN'] = token.data;
+                    this.$emit('update:is_loggedin', false);
+                })
+                .finally(() =>
+                {
+                    this.$Loading.finish();
+                });
             },
 
             validateAddBlogEntry()
@@ -109,50 +124,8 @@
                 });
             },
 
-            handleLogin()
-            {
-                this.$Loading.start();
-
-                axios.post(this.route_login, this.login)
-                .then((data) =>
-                {
-                    this.$Message.success('You are now logged in');
-                    this.user_loggedin = true;
-                })
-                .catch((err) =>
-                {
-                    this.$Message.error('Wrong credentials');
-                    this.user_loggedin = false;
-                })
-                .finally(() =>
-                {
-                    this.$Loading.finish();
-                    this.reset();
-                });
-
-            },
-
-            handleLogout()
-            {
-                this.$Loading.start();
-
-                axios.get(this.route_logout)
-                .then((token) =>
-                {
-                    this.$Message.success('You have been logged out');
-                    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.data;
-                    this.user_loggedin = false;
-                })
-                .finally(() =>
-                {
-                    this.$Loading.finish();
-                });
-            },
-
             reset()
             {
-                this.login.name              = null;
-                this.login.password          = null;
                 this.blog_entry.title        = null;
                 this.blog_entry.content      = null;
                 this.blog_entry.is_published = null;

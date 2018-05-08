@@ -12054,13 +12054,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_router__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vue_wysiwyg__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vue_wysiwyg___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_vue_wysiwyg__);
-
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-
 __webpack_require__(13);
 
 
@@ -12072,19 +12065,22 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_2_vue_
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_1_at_ui___default.a);
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_3_vue_wysiwyg___default.a, {});
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('blog-entries', __webpack_require__(45));
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('blog-header', __webpack_require__(42));
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('at-modal-extended', __webpack_require__(66));
 __WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('at-timeline-item-extended', __webpack_require__(69));
+__WEBPACK_IMPORTED_MODULE_0_vue___default.a.component('blogly-login', __webpack_require__(72));
 
 var app = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
-  el: '#app'
+    el: '#app',
+    mounted: function mounted() {
+        this.is_loggedin = this.$el.attributes.loggedin.value == 1;
+    },
+
+    data: {
+        is_loggedin: null,
+        login_modal: null
+    }
 });
 
 /***/ }),
@@ -56978,21 +56974,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
-//
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['route_home', 'route_login', 'route_logout', 'route_add_blog_entry', 'user_loggedin', 'blog_entries'],
+    props: ['route_home', 'route_logout', 'is_loggedin', 'login_modal', 'route_add_blog_entry', 'blog_entries'],
 
     data: function data() {
         return {
-            loginModal: null,
             blogEntryModal: null,
+            isLoggedIn: this.is_loggedin,
             login: {
                 name: null,
                 password: null
@@ -57004,20 +56995,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         };
     },
+
+
+    watch: {
+        is_loggedin: function is_loggedin(v) {
+            this.isLoggedIn = v;
+        }
+    },
+
     created: function created() {
         this.$Loading.config({ width: 3 });
     },
 
 
     methods: {
-        loginKeypress: function loginKeypress() {
-            this.$refs.login_box.handleAction('confirm');
+        openLoginModal: function openLoginModal() {
+            this.$emit('update:login_modal', true);
         },
-        handleLoginboxShow: function handleLoginboxShow(el) {
+        handleLogout: function handleLogout() {
             var _this = this;
 
-            this.$nextTick(function () {
-                return _this.$refs.login_input_name.$el.querySelector('input').focus();
+            this.$Loading.start();
+
+            axios.get(this.route_logout).then(function (token) {
+                _this.$Message.success('You have been logged out');
+                axios.defaults.headers.common['X-CSRF-TOKEN'] = token.data;
+                _this.$emit('update:is_loggedin', false);
+            }).finally(function () {
+                _this.$Loading.finish();
             });
         },
         validateAddBlogEntry: function validateAddBlogEntry() {
@@ -57051,38 +57056,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 _this2.$Loading.finish();
             });
         },
-        handleLogin: function handleLogin() {
-            var _this3 = this;
-
-            this.$Loading.start();
-
-            axios.post(this.route_login, this.login).then(function (data) {
-                _this3.$Message.success('You are now logged in');
-                _this3.user_loggedin = true;
-            }).catch(function (err) {
-                _this3.$Message.error('Wrong credentials');
-                _this3.user_loggedin = false;
-            }).finally(function () {
-                _this3.$Loading.finish();
-                _this3.reset();
-            });
-        },
-        handleLogout: function handleLogout() {
-            var _this4 = this;
-
-            this.$Loading.start();
-
-            axios.get(this.route_logout).then(function (token) {
-                _this4.$Message.success('You have been logged out');
-                window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.data;
-                _this4.user_loggedin = false;
-            }).finally(function () {
-                _this4.$Loading.finish();
-            });
-        },
         reset: function reset() {
-            this.login.name = null;
-            this.login.password = null;
             this.blog_entry.title = null;
             this.blog_entry.content = null;
             this.blog_entry.is_published = null;
@@ -57110,7 +57084,7 @@ var render = function() {
           "div",
           { staticClass: "nav-right" },
           [
-            _vm.user_loggedin
+            _vm.isLoggedIn
               ? _c(
                   "at-button",
                   {
@@ -57125,7 +57099,7 @@ var render = function() {
                 )
               : _vm._e(),
             _vm._v(" "),
-            _vm.user_loggedin
+            _vm.isLoggedIn
               ? _c(
                   "at-button",
                   {
@@ -57140,7 +57114,7 @@ var render = function() {
                     attrs: { type: "info", hollow: "" },
                     on: {
                       click: function($event) {
-                        _vm.loginModal = true
+                        _vm.openLoginModal()
                       }
                     }
                   },
@@ -57150,72 +57124,6 @@ var render = function() {
           1
         )
       ]),
-      _vm._v(" "),
-      _c(
-        "at-modal-extended",
-        {
-          ref: "login_box",
-          attrs: { title: "Please sign in" },
-          on: {
-            "on-confirm": _vm.handleLogin,
-            "on-show": _vm.handleLoginboxShow
-          },
-          model: {
-            value: _vm.loginModal,
-            callback: function($$v) {
-              _vm.loginModal = $$v
-            },
-            expression: "loginModal"
-          }
-        },
-        [
-          _c("at-input", {
-            ref: "login_input_name",
-            attrs: { placeholder: "username" },
-            nativeOn: {
-              keyup: function($event) {
-                if (
-                  !("button" in $event) &&
-                  _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
-                ) {
-                  return null
-                }
-                _vm.loginKeypress()
-              }
-            },
-            model: {
-              value: _vm.login.name,
-              callback: function($$v) {
-                _vm.$set(_vm.login, "name", $$v)
-              },
-              expression: "login.name"
-            }
-          }),
-          _vm._v(" "),
-          _c("at-input", {
-            attrs: { type: "password", placeholder: "password" },
-            nativeOn: {
-              keyup: function($event) {
-                if (
-                  !("button" in $event) &&
-                  _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
-                ) {
-                  return null
-                }
-                _vm.loginKeypress()
-              }
-            },
-            model: {
-              value: _vm.login.password,
-              callback: function($$v) {
-                _vm.$set(_vm.login, "password", $$v)
-              },
-              expression: "login.password"
-            }
-          })
-        ],
-        1
-      ),
       _vm._v(" "),
       _c(
         "at-modal-extended",
@@ -57382,10 +57290,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['route_get_entries', 'route_delete_entry'],
+    props: ['route_get_entries', 'route_delete_entry', 'is_loggedin'],
 
     data: function data() {
         return {
+            isLoggedIn: this.is_loggedin,
             items: [],
             page: 1,
             all_entries_fetched: false
@@ -57403,7 +57312,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
 
+    watch: {
+        is_loggedin: function is_loggedin(v) {
+            this.isLoggedIn = v;
+        }
+    },
+
     methods: {
+        editBlogEntry: function editBlogEntry(entry) {
+            this.$Message.info('Not supported, yet ☹');
+        },
         deleteBlogEntry: function deleteBlogEntry(entry) {
             var _this2 = this;
 
@@ -57445,7 +57363,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             } else {
                 setTimeout(function () {
                     _this4.fetchBlogEntries($state);
-                }, 1000);
+                }, 500);
             }
         }
     },
@@ -57501,20 +57419,34 @@ var render = function() {
                                     "div",
                                     { attrs: { slot: "extra" }, slot: "extra" },
                                     [
-                                      _c("a", [_vm._v("Edit")]),
+                                      _vm.isLoggedIn
+                                        ? _c(
+                                            "a",
+                                            {
+                                              on: {
+                                                click: function($event) {
+                                                  _vm.editBlogEntry(item)
+                                                }
+                                              }
+                                            },
+                                            [_vm._v("Edit")]
+                                          )
+                                        : _vm._e(),
                                       _vm._v(" "),
-                                      _c(
-                                        "a",
-                                        {
-                                          staticClass: "blog-delete",
-                                          on: {
-                                            click: function($event) {
-                                              _vm.deleteBlogEntry(item)
-                                            }
-                                          }
-                                        },
-                                        [_vm._v("Delete")]
-                                      )
+                                      _vm.isLoggedIn
+                                        ? _c(
+                                            "a",
+                                            {
+                                              staticClass: "blog-delete",
+                                              on: {
+                                                click: function($event) {
+                                                  _vm.deleteBlogEntry(item)
+                                                }
+                                              }
+                                            },
+                                            [_vm._v("Delete")]
+                                          )
+                                        : _vm._e()
                                     ]
                                   ),
                                   _vm._v(" "),
@@ -58459,6 +58391,217 @@ if (false) {
   module.hot.accept()
   if (module.hot.data) {
     require("vue-hot-reload-api")      .rerender("data-v-5e2d8624", module.exports)
+  }
+}
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(4)
+/* script */
+var __vue_script__ = __webpack_require__(73)
+/* template */
+var __vue_template__ = __webpack_require__(74)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\Modals\\Login.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-2ce2666c", Component.options)
+  } else {
+    hotAPI.reload("data-v-2ce2666c", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 73 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    props: {
+        is_loggedin: {
+            type: Boolean
+        },
+        route_login: {
+            type: String
+        },
+        login_modal: {
+            type: Boolean
+        }
+    },
+
+    data: function data() {
+        return {
+            loginModal: this.login_modal,
+            login: {
+                name: null,
+                password: null
+            }
+        };
+    },
+    mounted: function mounted() {},
+
+
+    watch: {
+        login_modal: function login_modal(v) {
+            this.loginModal = v;
+        },
+        loginModal: function loginModal(v) {
+            this.$emit('update:login_modal', v);
+        }
+    },
+
+    methods: {
+        loginKeypress: function loginKeypress() {
+            this.$refs.login_box.handleAction('confirm');
+        },
+        handleLoginboxShow: function handleLoginboxShow() {
+            var _this = this;
+
+            this.$nextTick(function () {
+                return _this.$refs.login_input_name.$el.querySelector('input').focus();
+            });
+        },
+        handleLogin: function handleLogin() {
+            var _this2 = this;
+
+            this.$refs.login_box.doClose();
+            this.$Loading.start();
+
+            axios.post(this.route_login, this.login).then(function (data) {
+                _this2.$Message.success('You are now logged in');
+                _this2.$emit('update:is_loggedin', true);
+            }).catch(function (err) {
+                _this2.$Message.error('Wrong credentials');
+                _this2.$emit('update:is_loggedin', false);
+            }).finally(function () {
+                _this2.$Loading.finish();
+                _this2.reset();
+            });
+        },
+        reset: function reset() {
+            this.login.name = null;
+            this.login.password = null;
+        }
+    }
+});
+
+/***/ }),
+/* 74 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "at-modal-extended",
+    {
+      ref: "login_box",
+      attrs: { title: "Please sign in" },
+      on: { "on-confirm": _vm.handleLogin, "on-show": _vm.handleLoginboxShow },
+      model: {
+        value: _vm.loginModal,
+        callback: function($$v) {
+          _vm.loginModal = $$v
+        },
+        expression: "loginModal"
+      }
+    },
+    [
+      _c("at-input", {
+        ref: "login_input_name",
+        attrs: { placeholder: "username" },
+        nativeOn: {
+          keyup: function($event) {
+            if (
+              !("button" in $event) &&
+              _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+            ) {
+              return null
+            }
+            _vm.loginKeypress()
+          }
+        },
+        model: {
+          value: _vm.login.name,
+          callback: function($$v) {
+            _vm.$set(_vm.login, "name", $$v)
+          },
+          expression: "login.name"
+        }
+      }),
+      _vm._v(" "),
+      _c("at-input", {
+        attrs: { placeholder: "password", type: "password" },
+        nativeOn: {
+          keyup: function($event) {
+            if (
+              !("button" in $event) &&
+              _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+            ) {
+              return null
+            }
+            _vm.loginKeypress()
+          }
+        },
+        model: {
+          value: _vm.login.password,
+          callback: function($$v) {
+            _vm.$set(_vm.login, "password", $$v)
+          },
+          expression: "login.password"
+        }
+      })
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-2ce2666c", module.exports)
   }
 }
 

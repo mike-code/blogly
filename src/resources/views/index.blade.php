@@ -11,11 +11,18 @@
         <title>Blog.ly</title>
     </head>
     <body>
-        <div id="app" class='container'>
-            @yield('page-content')
+        <div id="app" loggedin="{{ \Auth::check() }}">
+            <div class='container'>
+                @yield('page-content')
+            </div>
+
+            <blogly-login
+                route_login="{{ route('login') }}"
+                :is_loggedin.sync="is_loggedin"
+                :login_modal.sync="login_modal"
+            ></blogly-login>
         </div>
 
     <script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
-    @include('routes')
     </body>
 </html>
