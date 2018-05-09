@@ -28,8 +28,8 @@ services:
 
   mongodb:
     image: library/mongo
-    ports:
-      - 27018:27017
+    expose:
+      - 27017
     environment:
       MONGODB_USER: "root"
       MONGODB_PASS: "lite"
@@ -38,9 +38,8 @@ services:
     image: library/mysql:5
     volumes:
       - ./dbinit:/docker-entrypoint-initdb.d
-      # - ./mysql:/var/lib/mysql
-    ports:
-      - 3301:3306
+    expose:
+      - 3306
     environment:
       MYSQL_ROOT_PASSWORD: "lite"
 
