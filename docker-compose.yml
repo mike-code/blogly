@@ -4,7 +4,7 @@ services:
   web:
     image: library/nginx
     ports:
-      - 888:80
+      - 80:80
     volumes:
       - ./src:/var/www/html
       - ./nginx.conf:/etc/nginx/nginx.conf
