@@ -2,12 +2,14 @@ version: "3"
 
 services:
   web:
-    image: nginx
+    image: library/nginx
     ports:
       - 80:80
     volumes:
       - ./src:/var/www/html
       - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - phpfpm
     links:
       - phpfpm
 
@@ -15,13 +17,16 @@ services:
     image: devilbox/php-fpm:7.2-prod
     volumes:
       - ./src:/var/www/html
-    entrypoint: '/bin/sh -c "cd /var/www/html && php artisan migrate && php artisan view:clear && php artisan cache:clear && php artisan db:seed && /docker-entrypoint.sh"'
+    entrypoint: '/bin/sh -c "cd /var/www/html && php artisan key:generate && php artisan migrate --force && php artisan view:clear && php artisan cache:clear && php artisan db:seed --force && /docker-entrypoint.sh"'
+    depends_on:
+      - mysql
+      - mongodb
+      - composer
+      condition: 'service_healthy'
     links:
       - mysql
       - mongodb
-    depends_on:
-      - mysql:
-        condition: 'service_healthy'
+
 
   mongodb:
     image: mongo
@@ -32,7 +37,7 @@ services:
       MONGODB_PASS: "lite"
 
   mysql:
-    image: mysql
+    image: library/mysql:5
     volumes:
       - ./dbinit:/docker-entrypoint-initdb.d
     healthcheck:
@@ -43,8 +48,8 @@ services:
       MYSQL_ROOT_PASSWORD: "lite"
 
   composer:
-    image: composer
+    image: library/composer
     command: install
     volumes:
       - ./src:/app
-    command: ["composer", "update", "--ignore-platform-reqs"]
+    command: ["composer", "install", "--ignore-platform-reqs"]
