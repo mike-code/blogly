@@ -17,6 +17,13 @@ class BlogController extends Controller
         \App\Models\BlogEntry::destroy($id);
     }
 
+    public function update(\Illuminate\Http\Request $request, string $id)
+    {
+        $entry = \App\Models\BlogEntry::find($id);
+        $data = collect($request)->only(['is_published'])->toArray();
+        $entry->update($data);
+    }
+
     public function add(\Illuminate\Http\Request $request)
     {
         $request->validate([

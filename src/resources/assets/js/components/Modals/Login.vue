@@ -1,5 +1,5 @@
  <template>
-     <at-modal-extended v-model="loginModal" title="Please sign in" @on-confirm="handleLogin" ref="login_box" @on-show="handleLoginboxShow">
+     <at-modal-extended v-model="m_visible" title="Please sign in" @on-confirm="handleLogin" ref="login_box" @on-show="handleLoginboxShow">
         <at-input v-model="login.name" placeholder='username' @keyup.enter.native="loginKeypress()" ref='login_input_name'></at-input>
         <at-input v-model="login.password" placeholder='password' @keyup.enter.native="loginKeypress()" type='password'></at-input>
     </at-modal-extended>
@@ -8,26 +8,9 @@
 <script>
 export default
 {
-    props:
-    {
-        is_loggedin:
-        {
-            type: Boolean,
-        },
-        route_login:
-        {
-            type: String
-        },
-        login_modal:
-        {
-            type: Boolean
-        }
-    },
-
     data()
     {
         return {
-            loginModal: this.login_modal,
             login:
             {
                 name: null,
@@ -36,21 +19,13 @@ export default
         };
     },
 
-    mounted()
+    computed:
     {
-    },
-
-    watch:
-    {
-        login_modal(v)
+        m_visible:
         {
-            this.loginModal = v;
-        },
-
-        loginModal(v)
-        {
-             this.$emit('update:login_modal', v);
-        },
+            get() { return this.$store.state.login_modal_visible },
+            set(v) { return this.$store.commit('set_login_modal', v) }
+        }
     },
 
     methods:
@@ -70,16 +45,16 @@ export default
             this.$refs.login_box.doClose();
             this.$Loading.start();
 
-            axios.post(this.route_login, this.login)
+            axios.post(this.$store.state.api_routes.login, this.login)
             .then((data) =>
             {
-                this.$Message.success('You are now logged in');
-                this.$emit('update:is_loggedin', true);
+                this.$store.commit('set_user_data', data)
+                this.$Message.success('You are now logged in')
             })
             .catch((err) =>
             {
-                this.$Message.error('Wrong credentials');
-                this.$emit('update:is_loggedin', false);
+                this.$Message.error('Wrong credentials')
+                this.$store.commit('set_user_data', null)
             })
             .finally(() =>
             {

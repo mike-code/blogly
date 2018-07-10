@@ -13,7 +13,7 @@ class EntriesSeeder extends Seeder
     {
         $faker = \Faker\Factory::create();
 
-        for($i = 1; $i <= 32; $i++)
+        for($i = 1; $i <= 33; $i++)
         {
             \App\Models\BlogEntry::create([
                 'author_id' => rand(0,9),

@@ -12,15 +12,9 @@
     </head>
     <body>
         <div id="app" loggedin="{{ \Auth::check() }}">
-            <div class='container'>
-                @yield('page-content')
-            </div>
+            @include('routes')
 
-            <blogly-login
-                route_login="{{ route('login') }}"
-                :is_loggedin.sync="is_loggedin"
-                :login_modal.sync="login_modal"
-            ></blogly-login>
+            <vue-app></vue-app>
         </div>
 
     <script type="text/javascript" src="{{ mix('js/app.js') }}"></script>

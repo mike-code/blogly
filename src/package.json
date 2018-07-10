@@ -23,6 +23,7 @@
     "vue-infinite-loading": "^2.3.1"
   },
   "dependencies": {
-    "vue-wysiwyg": "^1.7.0"
+    "vue-wysiwyg": "^1.7.0",
+    "vuex": "^3.0.1"
   }
 }
