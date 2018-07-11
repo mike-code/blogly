@@ -104,6 +104,7 @@ a.danger
 .at-modal
 {
     max-width: 800px;
+    width: auto !important;
 
     @media (max-width: 798.98px)
     {
