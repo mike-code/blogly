@@ -29,7 +29,7 @@ class LoginController extends Controller
         $request->session()->regenerate();
         $this->clearLoginAttempts($request);
 
-        return response()->json(true);
+        return response()->json(\Auth::user());
     }
 
     public function logout(\Illuminate\Http\Request $request)

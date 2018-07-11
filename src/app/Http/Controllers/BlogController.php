@@ -5,16 +5,25 @@ use App\Http\Controllers\Controller;
 
 class BlogController extends Controller
 {
-    public function get(\Illuminate\Http\Request $request)
+    public function getAll()
     {
         $entries = \App\Models\BlogEntry::orderBy('created_at', 'desc')->paginate(10);
 
         return response()->json($entries);
     }
 
+    public function get(string $id)
+    {
+        $entry = \App\Models\BlogEntry::find($id);
+
+        return response()->json($entry);
+    }
+
     public function delete(\Illuminate\Http\Request $request, string $id)
     {
         \App\Models\BlogEntry::destroy($id);
+
+        return response(null, 204);
     }
 
     public function update(\Illuminate\Http\Request $request, string $id)
@@ -31,12 +40,14 @@ class BlogController extends Controller
             'content'      => 'required',
         ]);
 
-        \App\Models\BlogEntry::create([
+        $entry = \App\Models\BlogEntry::create([
             'author_id'    => (int)\Auth::user()->id,
             'author_name'  => \Auth::user()->name,
             'title'        => $request->title,
             'content'      => $request->content,
             'is_published' => (bool)$request->is_published ?? false,
         ]);
+
+        return response()->json($entry, 201);
     }
 }

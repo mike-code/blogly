@@ -22,7 +22,6 @@ services:
       - mysql
       - mongodb
       - composer
-      condition: 'service_healthy'
     links:
       - mysql
       - mongodb
