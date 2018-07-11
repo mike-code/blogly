@@ -8,17 +8,45 @@ header
     padding: 3rem 2rem 1rem;
     border-bottom: 1px solid #eee;
     justify-content: space-between;
+
+    @media (max-width: 434.98px)
+    {
+        padding: 30px 10px 10px;
+        button.at-btn
+        {
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+    }
 }
 
 .nav-left
 {
-    a
+    // Extra small devices (portrait phones, less than 576px)
+    @media (max-width: 575.98px)
     {
-        height: 68px;
-        width: 250px;
-        content: '';
-        display: block;
-        background: url('/img/logo.png');
+        a
+        {
+            height: 34px;
+            width: 125px;
+            content: '';
+            display: block;
+            background: url('/img/logo.png');
+            background-size: cover;
+        }
+    }
+
+    @media (min-width: 560px)
+    {
+        a
+        {
+            height: 68px;
+            width: 250px;
+            content: '';
+            display: block;
+            background: url('/img/logo.png');
+            background-size: cover;
+        }
     }
 }
 
@@ -71,4 +99,15 @@ h5
 a.danger
 {
     color: #e87661;
+}
+
+.at-modal
+{
+    max-width: 800px;
+
+    @media (max-width: 798.98px)
+    {
+        margin-left: 10px;
+        margin-right: 10px;
+    }
 }

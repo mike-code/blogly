@@ -1,5 +1,5 @@
  <template>
-     <at-modal-extended v-model="m_visible" title="Please sign in" @on-confirm="handleLogin" ref="login_box" @on-show="handleLoginboxShow">
+     <at-modal-extended width="auto" v-model="m_visible" title="Please sign in" @on-confirm="handleLogin" ref="login_box" @on-show="handleLoginboxShow">
         <at-input v-model="login.name" placeholder='username' @keyup.enter.native="loginKeypress()" ref='login_input_name'></at-input>
         <at-input v-model="login.password" placeholder='password' @keyup.enter.native="loginKeypress()" type='password'></at-input>
     </at-modal-extended>

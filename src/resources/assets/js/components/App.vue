@@ -3,7 +3,7 @@
         <blog-header></blog-header>
 
         <div class='row'>
-            <div class='col-md-16'>
+            <div class='col-md-16' style="width: 100%">
                 <blog-entries></blog-entries>
             </div>
             <div class='col-md-8 sidebar'>

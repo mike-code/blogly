@@ -28,7 +28,7 @@
             <div slot="no-more"><!-- Nothing --></div>
         </infinite-loading>
 
-        <at-modal-extended v-model="m_visible" title="Add new post" width="800" :mask-closable="false" ref="add_blog_post_box" @on-confirm="addBlogEntry">
+        <at-modal-extended v-model="m_visible" title="Add new post" width="auto" :mask-closable="false" ref="add_blog_post_box" @on-confirm="addBlogEntry">
             <at-input v-model="blog_entry.title" :max="255" placeholder='Title'></at-input>
             <at-textarea v-model="blog_entry.content" placeholder='Lorem ipsum...' :minRows="12"></at-textarea>
             <at-checkbox v-model="blog_entry.is_published" label="published">published</at-checkbox>
